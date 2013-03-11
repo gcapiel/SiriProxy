@@ -1,6 +1,7 @@
 require 'cora'
 require 'siri_objects'
 require 'pp'
+require 'net/http'
 
 #######
 # This is a "hello world" style plugin. It simply intercepts the phrase "test siri proxy" and responds
@@ -29,6 +30,17 @@ class SiriProxy::Plugin::Example < SiriProxy::Plugin
 
   listen_for /where am i/i do
     say "Your location is: #{location.address}"
+  end
+
+  listen_for /turn stereo on/i do
+    say "I will turn on the stereo"
+    url = URI.parse('http://192.168.1.141/receiver_on.php')
+	req = Net::HTTP::Get.new(url.to_s)
+	res = Net::HTTP.start(url.host, url.port) {|http|
+  		http.request(req)
+	}
+	puts res.body
+    request_completed
   end
 
   listen_for /test siri proxy/i do
